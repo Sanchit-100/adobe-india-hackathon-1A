@@ -1,4 +1,3 @@
-
 # PDF Outline Extractor
 
 ## Inspiration 🌟
@@ -19,11 +18,11 @@ PDFs power everything from research papers to user manuals, yet their visual lay
     { "level": "H3", "text": "History of AI",   "page": 3 }
   ]
 }
-````
+```
 
 ## Our Solution 💪
 
-We combine an open-source LightGBM binary classifier ([LightGBM](https://github.com/microsoft/LightGBM)), fine-tuned on the DocLayNet(([FineTuned Model](https://github.com/TheSlothThatCodes0/heading_classification))), with spatial, typographic, and textual rules. Fine-tuning on DocLayNet enables robust, multilingual heading detection—for English, German, French, Japanese, and more—while preserving a lightweight (< 200 MB) model footprint.
+We combine an open-source LightGBM binary classifier ([LightGBM](https://github.com/microsoft/LightGBM)), fine-tuned on the DocLayNet dataset, with spatial, typographic, and textual rules. Fine-tuning on DocLayNet enables robust, multilingual heading detection—for English, German, French, Japanese, and more—while preserving a lightweight (< 200 MB) model footprint.
 
 ## Methodology 📝
 
@@ -32,7 +31,6 @@ We combine an open-source LightGBM binary classifier ([LightGBM](https://github.
 * Use **PyMuPDF** to extract text spans from each page.
 * Compute each line’s **average font size** and **dominant font name**.
 * Sort lines by vertical position, then group adjacent lines into blocks when:
-
   * Vertical gap < 50 % of font size
   * Font size within ±1 pt and same font weight
 * Merge each group into a single block (concatenate text, unify bounding box, retain font/page info).
@@ -40,7 +38,6 @@ We combine an open-source LightGBM binary classifier ([LightGBM](https://github.
 ### 2. Feature Engineering
 
 * Build a **pandas** DataFrame of blocks with features:
-
   * **Spatial:** `x`, `y`, `width`, normalized `norm_x`, `norm_y`
   * **Typography:** `font_size`, `relative_font_size` (vs. modal body size), `font_weight` (0/1/2)
   * **Textual:** `text_length`, `num_words`, `is_all_caps`, `is_centered`, `percent_punct`, `numbering_depth`
@@ -49,7 +46,6 @@ We combine an open-source LightGBM binary classifier ([LightGBM](https://github.
 
 * Run **LightGBM** to predict heading vs. body blocks.
 * Drop false positives via rules:
-
   * Boilerplate (running headers/footers)
   * Dates, page-numbers, bullets, table-like rows
   * Excessive punctuation (> 40 %)
@@ -59,7 +55,6 @@ We combine an open-source LightGBM binary classifier ([LightGBM](https://github.
 
 * Traverse filtered headings in reading order using a **stack** of `(level, font_size)`.
 * Assign levels:
-
   * **Deeper** if font size significantly smaller
   * **Same** if within ±5 %
   * **Ascend** (or reset to H1) if larger
@@ -68,17 +63,53 @@ We combine an open-source LightGBM binary classifier ([LightGBM](https://github.
 ### 5. Title Detection
 
 * From page 1 headings, compute a score:
-
-  ```text
+  ```
   score = relative_font_size − norm_y
   ```
 * Select the heading with the highest score as the **Title**.
 
 ## What Sets This Apart 🌠
 
-* **Hybrid ML + Rules:** LightGBM’s speed and precision, enhanced by DocLayNet fine-tuning for multilingual support
-* **Robust Merging:** Accurately reconstructs fragmented text blocks across diverse layouts
-* **Adaptive Hierarchy:** Tolerance-driven algorithm flexibly adapts to varied document designs
+* **Hybrid ML + Rules:** LightGBM’s speed and precision, enhanced by DocLayNet fine-tuning for multilingual support  
+* **Robust Merging:** Accurately reconstructs fragmented text blocks across diverse layouts  
+* **Adaptive Hierarchy:** Tolerance-driven algorithm flexibly adapts to varied document designs  
 
+## Technical Details 🛠️
+
+* **Core Functions:**
+  * `parse_pdf_and_merge_lines_v2()` — block extraction & merging
+  * `engineer_features()` — feature computation
+  * `infer_pdf_binary()` — prediction, filtering, hierarchy, JSON serialization
+  * `main()` — batch processing of input PDFs
+
+* **Dependencies:**
+  * PyMuPDF  
+  * pandas  
+  * scikit-learn  
+  * joblib  
+  * lightgbm  
+
+## Docker Requirements 🐳
+
+* Base image:
+  ```Dockerfile
+  FROM --platform=linux/amd64 python:3.9-slim
+  ```
+* No GPU dependencies, offline use, model size ≤ 200 MB  
+* Install Python packages: `PyMuPDF`, `pandas`, `scikit-learn`, `joblib`, `lightgbm`
+
+## Expected Execution 🚀
+
+```bash
+# Build the Docker image
+docker build --platform linux/amd64 -t pdf-outline-extractor:latest .
+
+# Run the container (mount input/output directories)
+docker run --rm \
+  -v $(pwd)/input:/app/input \
+  -v $(pwd)/output:/app/output \
+  --network none \
+  pdf-outline-extractor:latest
+```
 
 The container will process all `/app/input/*.pdf` and write corresponding `.json` outlines into `/app/output`.
