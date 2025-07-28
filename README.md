@@ -81,6 +81,9 @@ We combine an open-source LightGBM binary classifier ([LightGBM](https://github.
 * No GPU dependencies, offline use, model size ≤ 200 MB  
 * Install Python packages: `PyMuPDF`, `pandas`, `scikit-learn`, `joblib`, `lightgbm`
 
+## Sample folder structure after adding the input folder
+<img width="214" height="335" alt="image" src="https://github.com/user-attachments/assets/aaaa9138-fd0e-487b-a901-52b4ca21d6ee" />
+
 ## Expected Execution 🚀
 Note: We have checked the working thoroughly with Ubuntu (WSL).
 Only an input folder containing all the input pdfs need to be added with name "input"
