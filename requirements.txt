@@ -1,4 +1,4 @@
-pymupdf
+pymupdf==1.22.5
 pandas
 joblib
 scikit-learn
