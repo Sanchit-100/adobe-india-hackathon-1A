@@ -3,23 +3,6 @@
 ## Inspiration 🌟
 PDFs power everything from research papers to user manuals, yet their visual layout obscures their logical structure. In Round 1A (“Understand Your Document”) of the Adobe India Hackathon 2025—Challenge Theme: Connecting the Dots Through Docs—our mission is to teach machines to “read” a PDF and extract its Title and hierarchical headings (H1, H2, H3) in JSON. This structured outline becomes the foundation for semantic search, knowledge graphs, and intelligent document workflows.
 
-## What It Does 💡
-
-**Input:**  
-- A PDF file (≤ 50 pages)
-
-**Output:**  
-```json
-{
-  "title": "Understanding AI",
-  "outline": [
-    { "level": "H1", "text": "Introduction",    "page": 1 },
-    { "level": "H2", "text": "What is AI?",     "page": 2 },
-    { "level": "H3", "text": "History of AI",   "page": 3 }
-  ]
-}
-```
-
 ## Our Solution 💪
 
 We combine an open-source LightGBM binary classifier ([LightGBM](https://github.com/microsoft/LightGBM)), fine-tuned on the DocLayNet dataset ([FineTunedModel](https://github.com/TheSlothThatCodes0/heading_classification)), with spatial, typographic, and textual rules. Fine-tuning on DocLayNet enables robust, multilingual heading detection—for English, German, French, Japanese, and more—while preserving a lightweight (< 200 MB) model footprint.
