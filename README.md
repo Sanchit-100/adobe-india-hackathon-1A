@@ -99,6 +99,10 @@ We combine an open-source LightGBM binary classifier ([LightGBM](https://github.
 * Install Python packages: `PyMuPDF`, `pandas`, `scikit-learn`, `joblib`, `lightgbm`
 
 ## Expected Execution 🚀
+Note: We have checked the working thoroughly with Ubuntu (WSL).
+Only an input folder containing all the input pdfs need to be added with name "input"
+All the output.json files will be added to the folder "output"
+Both the input and the output folders are in the root directory.
 
 ```bash
 # Build the Docker image
